@@ -7,10 +7,15 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+
+import static java.util.Collections.unmodifiableList;
 
 public class DocumentManagementSystem {
 
     private final List<Document> documents = new ArrayList<>();
+    private final List<Document> documentsView = unmodifiableList(documents);
+
     private final Map<String, Importer> extensionToImporter = new HashMap<>();
 
     public DocumentManagementSystem() {
@@ -41,5 +46,9 @@ public class DocumentManagementSystem {
         } else {
             throw new UnknownFileTypeException("No extension found For file: " + path);
         }
+    }
+
+    public List<Document> contents() {
+        return documentsView;
     }
 }
