@@ -1,13 +1,22 @@
 package com.iteratrlearning.shu_book.chapter_05;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class BusinessRuleEngine {
 
+    private final List<Action> actions;
+
+    public BusinessRuleEngine() {
+        this.actions = new ArrayList<>();
+    }
+
     public void addAction(final Action action) {
-        throw new UnsupportedOperationException();
+        this.actions.add(action);
     }
 
     public int count() {
-        throw new UnsupportedOperationException();
+        return this.actions.size();
     }
 
     public void run() {
