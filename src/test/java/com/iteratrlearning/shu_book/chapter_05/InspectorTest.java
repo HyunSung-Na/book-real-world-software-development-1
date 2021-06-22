@@ -25,12 +25,6 @@ public class InspectorTest {
     }
 
     private static class JobTitleCondition implements ConditionAction {
-
-        @Override
-        public void perform(Facts facts) {
-
-        }
-
         @Override
         public boolean evaluate(Facts facts) {
             return "CEO".equals(facts.getFacts("jobTitle"));
