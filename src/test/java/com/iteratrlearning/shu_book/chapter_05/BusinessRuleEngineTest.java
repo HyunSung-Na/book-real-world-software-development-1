@@ -20,6 +20,19 @@ public class BusinessRuleEngineTest {
     public void shouldTwoActions() {
         final Facts fact = new Facts();
         final BusinessRuleEngine businessRuleEngine = new BusinessRuleEngine(fact);
+        final ConditionAction conditionAction = (Facts facts) ->
+                "CEO".equals(facts.getFacts("jobTitle"));
+        final Action action = (Facts facts) -> {
+            var name = facts.getFacts("name");
+        };
+
+        final Rule rule = new DefaultRule(conditionAction, action);
+
+        final Rule ruleSendEmailToSalesWhenCEO = RuleBuilder
+                .when(facts -> "CEO".equals(facts.getFacts("jobTitle")))
+                .then(facts -> {
+                   var name = facts.getFacts("name");
+                });
 
         businessRuleEngine.addAction(facts -> {
             final String jobTitle = facts.getFacts("jobTitle");
@@ -29,19 +42,15 @@ public class BusinessRuleEngineTest {
             }
         });
         businessRuleEngine.addAction(facts -> {
-            double forecastedAmount = 0.0;
-            Stage dealStage = Stage.valueOf(facts.getFacts("stage"));
-            double amount = Double.parseDouble(facts.getFacts("amount"));
+            var dealStage = Stage.valueOf(facts.getFacts("stage"));
+            var amount = Double.parseDouble(facts.getFacts("amount"));
+            var forecastedAmount = amount * switch (dealStage) {
+                case LEAD -> 0.2;
+                case EVALUATING -> 0.5;
+                case INTERESTED -> 0.8;
+                case CLOSED -> 1;
+            };
 
-            if (dealStage == Stage.LEAD) {
-                forecastedAmount = amount * 0.2;
-            } else if (dealStage == Stage.EVALUATING) {
-                forecastedAmount = amount * 0.5;
-            } else if (dealStage == Stage.INTERESTED) {
-                forecastedAmount = amount * 0.8;
-            } else if (dealStage == Stage.CLOSED) {
-                forecastedAmount = amount;
-            }
             facts.addFact("forecastedAmount", String.valueOf(forecastedAmount));
         });
 
@@ -51,28 +60,28 @@ public class BusinessRuleEngineTest {
     @Test
     public void shouldExecuteOneAction() {
         // given
-        final Action mockAction = mock(Action.class);
+        final Rule mockRule = mock(Rule.class);
         final Facts mockFacts = mock(Facts.class);
         final BusinessRuleEngine businessRuleEngine = new BusinessRuleEngine(mockFacts);
 
         // when
-        businessRuleEngine.addAction(mockAction);
+        businessRuleEngine.addAction(mockRule);
         businessRuleEngine.run();
 
         // then
-        verify(mockAction).perform(mockFacts);
+        verify(mockRule).perform(mockFacts);
     }
 
     @Test
     public void shouldPerformAnActionWithFacts() {
-        final Action mockAction = mock(Action.class);
+        final Rule mockRule = mock(Rule.class);
         final Facts mockFacts = mock(Facts.class);
 
         final BusinessRuleEngine businessRuleEngine = new BusinessRuleEngine(mockFacts);
 
-        businessRuleEngine.addAction(mockAction);
+        businessRuleEngine.addAction(mockRule);
         businessRuleEngine.run();
 
-        verify(mockAction).perform(mockFacts);
+        verify(mockRule).perform(mockFacts);
     }
 }
